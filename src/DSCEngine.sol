@@ -33,6 +33,12 @@ contract DSCEngine {
     error DSCEngine__HealthFactorOk();
     error DSCEngine__HealthFactorNotImproved();
 
+     ///////////////////
+    // State Variables
+    ///////////////////
+     /// @dev Mapping of token address to price feed address
+    mapping(address collateralToken => address priceFeed) private s_priceFeeds;
+
     ///////////////////
     // Modifiers
     ///////////////////
