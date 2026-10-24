@@ -33,10 +33,10 @@ contract DSCEngine {
     error DSCEngine__HealthFactorOk();
     error DSCEngine__HealthFactorNotImproved();
 
-     ///////////////////
+    ///////////////////
     // State Variables
     ///////////////////
-     /// @dev Mapping of token address to price feed address
+    /// @dev Mapping of token address to price feed address
     mapping(address collateralToken => address priceFeed) private s_priceFeeds;
 
     ///////////////////
@@ -48,4 +48,19 @@ contract DSCEngine {
         }
         _;
     }
+
+    ///////////////////
+    //   Functions   //
+    ///////////////////
+    ///////////////////////////
+    //   External Functions  //
+    ///////////////////////////
+    function depositCollateralAndMintDsc() external {}
+    function depositCollateral() external {}
+    function redeemCollateralForDsc() external {}
+    function redeemCollateral() external {}
+    function mintDsc() external {}
+    function burnDsc() external {}
+    function liquidate() external {}
+    function getHealthFactor() external view {}
 }
