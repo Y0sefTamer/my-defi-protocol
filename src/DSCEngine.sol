@@ -47,8 +47,6 @@ contract DSCEngine is ReentrancyGuard {
     uint256 private constant LIQUIDATION_PRECISION = 100;
     uint256 private constant MIN_HEALTH_FACTOR = 1e18;
 
-
-
     /// @dev Mapping of token address to price feed address
     mapping(address collateralToken => address priceFeed) private s_priceFeeds;
     mapping(address user => mapping(address token => uint256 amount)) private s_collateralDeposited;
@@ -145,11 +143,13 @@ contract DSCEngine is ReentrancyGuard {
         totalDscMinted = s_dscMinted[user];
         collateralValueInUsd = getAccountCollateralValue(user);
     }
+
     function _healthFactor(address user) private view returns (uint256) {
-         (uint256 totalDscMinted, uint256 collateralValueInUsd) = _getAccountInformation(user);
+        (uint256 totalDscMinted, uint256 collateralValueInUsd) = _getAccountInformation(user);
         uint256 collateralAdjustedForThreshold = (collateralValueInUsd * LIQUIDATION_THRESHOLD) / LIQUIDATION_PRECISION;
         return (collateralAdjustedForThreshold * PRECISION) / totalDscMinted;
     }
+
     function _revertIfHealthFactorIsBroken(address user) internal view {
         uint256 userHealthFactor = _healthFactor(user);
         if (userHealthFactor < MIN_HEALTH_FACTOR) {
@@ -165,9 +165,10 @@ contract DSCEngine is ReentrancyGuard {
         for (uint256 i = 0; i < s_collateralTokens.length; i++) {
             address token = s_collateralTokens[i];
             uint256 amount = s_collateralDeposited[user][token];
-                totalCollateralValueInUsd += getUsdValue(token, amount);
+            totalCollateralValueInUsd += getUsdValue(token, amount);
         }
     }
+
     function getUsdValue(address token, uint256 amount) public view returns (uint256) {
         address priceFeedAddress = s_priceFeeds[token];
         AggregatorV3Interface priceFeed = AggregatorV3Interface(s_priceFeeds[token]);
@@ -178,5 +179,5 @@ contract DSCEngine is ReentrancyGuard {
         uint256 priceUint256 = uint256(price);
 
         return ((priceUint256 * ADDITIONAL_FEED_PRECISION) * amount) / PRECISION;
-}
+    }
 }
