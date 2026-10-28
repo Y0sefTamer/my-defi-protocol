@@ -5,7 +5,6 @@ import {Script} from "forge-std/Script.sol";
 import {MockV3Aggregator} from "../test/mocks/MockV3Aggregator.sol";
 import {ERC20Mock} from "../test/mocks/ERC20Mock.sol";
 
-
 contract HelperConfig is Script {
     struct NetworkConfig {
         address wethUsdPriceFeed;
