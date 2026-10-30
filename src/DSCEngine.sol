@@ -89,18 +89,43 @@ contract DSCEngine is ReentrancyGuard {
         }
         i_dsc = DecentralizedStableCoin(dscAddress);
     }
+
     ///////////////////////////
     //   External Functions  //
     ///////////////////////////
-    function depositCollateralAndMintDsc() external {}
-
     /*
-     * @notice follows the "Checks-Effects-Interactions" pattern
+     * @notice this function allows users to deposit collateral and mint DSC in a single transaction
      * @param tokenCollateralAddress The address of the token to deposit as collateral
      * @param amountCollateral The amount of collateral to deposit
+     * @param amountDscToMint The amount of DSC to mint
      */
+    function depositCollateralAndMintDsc(
+        address tokenCollateralAddress,
+        uint256 amountCollateral,
+        uint256 amountDscToMint
+    ) external {
+        depositCollateral(tokenCollateralAddress, amountCollateral);
+        mintDsc(amountDscToMint);
+    }
+
+    function redeemCollateralForDsc() external {}
+    function redeemCollateral() external {}
+
+    function burnDsc() external {}
+    function liquidate() external {}
+    function getHealthFactor() external view {}
+
+    //////////////////////
+    // Public Functions //
+    /////////////////////
+
+    /*
+    * @notice follows the "Checks-Effects-Interactions" pattern
+    * @param tokenCollateralAddress The address of the token to deposit as collateral
+    * @param amountCollateral The amount of collateral to deposit
+    */
     function depositCollateral(address tokenCollateralAddress, uint256 amountCollateral)
-        external
+        public
         moreThanZero(amountCollateral)
         isAllowedToken(tokenCollateralAddress)
         nonReentrant
@@ -112,15 +137,13 @@ contract DSCEngine is ReentrancyGuard {
             revert DSCEngine__TransferFailed();
         }
     }
-    function redeemCollateralForDsc() external {}
-    function redeemCollateral() external {}
 
     /*
-     * @notice follows the "Checks-Effects-Interactions" pattern
-     * @param amountDscToMint The amount of DSC to mint
-     * @notice You must have more collateral value than the minimum threshold to mint DSC
-     */
-    function mintDsc(uint256 amountDscToMint) external moreThanZero(amountDscToMint) nonReentrant {
+    * @notice follows the "Checks-Effects-Interactions" pattern
+    * @param amountDscToMint The amount of DSC to mint
+    * @notice You must have more collateral value than the minimum threshold to mint DSC
+    */
+    function mintDsc(uint256 amountDscToMint) public moreThanZero(amountDscToMint) nonReentrant {
         s_dscMinted[msg.sender] += amountDscToMint;
         _revertIfHealthFactorIsBroken(msg.sender);
         bool minted = i_dsc.mint(msg.sender, amountDscToMint);
@@ -128,9 +151,6 @@ contract DSCEngine is ReentrancyGuard {
             revert DSCEngine__MintFailed();
         }
     }
-    function burnDsc() external {}
-    function liquidate() external {}
-    function getHealthFactor() external view {}
 
     ////////////////////////////////////////
     // private & Internal view Functions  //
@@ -171,7 +191,7 @@ contract DSCEngine is ReentrancyGuard {
 
     function getUsdValue(address token, uint256 amount) public view returns (uint256) {
         address priceFeedAddress = s_priceFeeds[token];
-        AggregatorV3Interface priceFeed = AggregatorV3Interface(s_priceFeeds[token]);
+        AggregatorV3Interface priceFeed = AggregatorV3Interface(priceFeedAddress);
         (, int256 price,,,) = priceFeed.latestRoundData();
 
         // casting to uint256 is safe because supported Chainlink price feeds are expected to return positive prices
