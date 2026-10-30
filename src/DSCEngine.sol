@@ -27,7 +27,7 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/Ag
  */
 contract DSCEngine is ReentrancyGuard {
     ///////////////////
-    // Errors
+    // Errors       //
     ///////////////////
     error DSCEngine__TokenAddressesAndPriceFeedAddressesAmountsDontMatch();
     error DSCEngine__NeedsMoreThanZero();
@@ -38,9 +38,9 @@ contract DSCEngine is ReentrancyGuard {
     error DSCEngine__HealthFactorOk();
     error DSCEngine__HealthFactorNotImproved();
 
-    ///////////////////
-    // State Variables
-    ///////////////////
+    /////////////////////
+    // State Variables //
+    /////////////////////
     uint256 private constant ADDITIONAL_FEED_PRECISION = 1e10;
     uint256 private constant PRECISION = 1e18;
     uint256 private constant LIQUIDATION_THRESHOLD = 50; // 200% overcollateralized
@@ -56,12 +56,12 @@ contract DSCEngine is ReentrancyGuard {
     DecentralizedStableCoin private immutable i_dsc;
 
     ///////////////////
-    // Events
+    // Events       ///
     ///////////////////
     event CollateralDeposited(address indexed user, address indexed token, uint256 indexed amount);
 
     ///////////////////
-    // Modifiers
+    // Modifiers    ///
     ///////////////////
     modifier moreThanZero(uint256 amount) {
         if (amount == 0) {
