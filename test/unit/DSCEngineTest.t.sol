@@ -6,6 +6,7 @@ import {DSCEngine} from "../../src/DSCEngine.sol";
 import {DecentralizedStableCoin} from "../../src/DecentralizedStableCoin.sol";
 import {DeployDSC} from "../../script/DeployDSC.s.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
+import {ERC20Mock} from "../mocks/ERC20Mock.sol";
 
 contract DSCEngineTest is Test {
     DeployDSC public deployer;
@@ -17,10 +18,15 @@ contract DSCEngineTest is Test {
     address public wethUsdPriceFeed;
     address public wbtcUsdPriceFeed;
 
+    address public USER = makeAddr("user");
+    uint256 public constant COLLATERAL_AMOUNT = 10 ether;
+    uint256 public constant Starting_ETH_BALANCE = 10 ether;
+
     function setUp() external {
         deployer = new DeployDSC();
         (dsc, dscEngine, helperConfig) = deployer.run();
-        (wethUsdPriceFeed, wbtcUsdPriceFeed, weth, wbtc, ) = helperConfig.activeNetworkConfig();
+        (wethUsdPriceFeed, wbtcUsdPriceFeed, weth, wbtc,) = helperConfig.activeNetworkConfig();
+        ERC20Mock(weth).mint(USER, COLLATERAL_AMOUNT);
         console.log("Deployed DecentralizedStableCoin at:", address(dsc));
         console.log("Deployed DSCEngine at:", address(dscEngine));
         console.log("Deployed HelperConfig at:", address(helperConfig));
@@ -35,5 +41,16 @@ contract DSCEngineTest is Test {
         uint256 expectedUsd = 15e18 * 2000e8 / 1e8; // Assuming ETH price is $2000 with 8 decimals
         uint256 actualUsd = dscEngine.getUsdValue(weth, ethAmount);
         assertEq(expectedUsd, actualUsd, "USD value calculation is incorrect");
+    }
+
+    //////////////////////////////////
+    // DepositCollateral Tests      //
+    /////////////////////////////////
+    function testRevertWhenDepositCollateralWithZeroAmount() public {
+        vm.startPrank(USER);
+        ERC20Mock(weth).approve(address(dscEngine), COLLATERAL_AMOUNT);
+        vm.expectRevert(DSCEngine.DSCEngine__NeedsMoreThanZero.selector);
+        dscEngine.depositCollateral(weth, 0);
+        vm.stopPrank();
     }
 }
